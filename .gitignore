@@ -1,0 +1,6 @@
+# config
+*.toml
+
+# exe file
+mongodb_query
+mongodb_query.exe
