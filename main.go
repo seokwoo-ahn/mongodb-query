@@ -28,12 +28,20 @@ func main() {
 		fmt.Println("error")
 	}
 
+	// var results []bson.D
+	// if err = cursor.All(context.TODO(), &results); err != nil {
+	// 	panic(err)
+	// }
+	// for _, result := range results {
+	// 	fmt.Println(result)
+	// }
+	// fmt.Println("check")
+
 	for cursor.Next(context.TODO()) {
 		var elem bson.M
 		if err := cursor.Decode(&elem); err != nil {
 			fmt.Println(err)
 		}
-
 		fmt.Println(elem)
 	}
 
