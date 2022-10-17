@@ -6,9 +6,8 @@ import (
 	"fmt"
 	"log"
 	"mongodb_query/config"
+	"mongodb_query/query"
 	"mongodb_query/util"
-
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 var configFlag = flag.String("config", "./config.toml", "configuration toml file path")
@@ -23,26 +22,10 @@ func main() {
 
 	usersCollection := client.Database(config.DB).Collection(config.Collection)
 
-	cursor, err := usersCollection.Find(context.TODO(), bson.D{{Key: "blocksize", Value: bson.D{{Key: "$gt", Value: 10000}}}})
-	if err != nil {
-		fmt.Println("error")
-	}
-
-	// var results []bson.D
-	// if err = cursor.All(context.TODO(), &results); err != nil {
-	// 	panic(err)
-	// }
-	// for _, result := range results {
-	// 	fmt.Println(result)
-	// }
-	// fmt.Println("check")
-
-	for cursor.Next(context.TODO()) {
-		var elem bson.M
-		if err := cursor.Decode(&elem); err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println(elem)
+	if tx, err := query.FindTxByHash(usersCollection, "0x075164408b59135a8efd2dc840147d397007552b92e14a2ca79e60d8b0d17f98"); err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(tx)
 	}
 
 	err = client.Disconnect(context.TODO())
