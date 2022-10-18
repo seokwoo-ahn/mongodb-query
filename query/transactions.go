@@ -6,56 +6,34 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func FindTxByHash(collection *mongo.Collection, txHash string) (types.Tx, error) {
 	var tx types.Tx
-	cursor, err := collection.Find(context.TODO(), bson.D{{Key: "txhash", Value: txHash}})
-	if err != nil {
-		return tx, err
-	}
 
-	for cursor.Next(context.TODO()) {
-		var elem bson.M
-		if err := cursor.Decode(&elem); err != nil {
-			return tx, err
-		}
-		tx.TxHash = elem["txhash"].(string)
-		tx.BlockNumber = int(elem["blocknumber"].(float64))
-		tx.Nonce = int(elem["nonce"].(float64))
-		tx.GasUsed = int(elem["gasused"].(float64))
-		tx.TotalIndex = int(elem["totalindex"].(float64))
-		tx.TxSize = int(elem["txsize"].(float64))
-		tx.From = elem["from"].(string)
-		tx.To = elem["to"].(string)
-		tx.GasPrice = int(elem["gasprice"].(float64))
-		tx.Amount = elem["amount"].(string)
-		tx.Status = int(elem["status"].(float64))
+	// projection
+	// opts := []*options.FindOneOptions{
+	// 	options.FindOne().SetProjection(bson.M{"blocknumber": 1}),
+	// }
+
+	if err := collection.FindOne(context.TODO(), bson.D{{Key: "txhash", Value: txHash}}, nil).Decode(&tx); err != nil {
+		return tx, err
 	}
 	return tx, nil
 }
 
-func GetTxsByBlockNumber(collection *mongo.Collection, txHash string) (types.Tx, error) {
-	var tx types.Tx
-	cursor, err := collection.Find(context.TODO(), bson.D{{Key: "blocksize", Value: bson.D{{Key: "$gt", Value: 10000}}}})
+func GetTxsByBlockNumberGT(collection *mongo.Collection, blockNumber int) ([]types.Tx, error) {
+	var txs []types.Tx
+
+	//descending
+	opts := options.Find().SetSort(bson.M{"blokcnumber": 1})
+
+	cursor, err := collection.Find(context.TODO(), bson.D{{Key: "blocknumber", Value: bson.D{{Key: "$gt", Value: blockNumber}}}}, opts)
 	if err != nil {
-		return tx, err
+		return nil, err
+	} else if err := cursor.All(context.TODO(), &txs); err != nil {
+		return nil, err
 	}
-
-	// var results []bson.D
-	// if err = cursor.All(context.TODO(), &results); err != nil {
-	// 	panic(err)
-	// }
-	// for _, result := range results {
-	// 	fmt.Println(result)
-	// }
-	// fmt.Println("check")
-
-	for cursor.Next(context.TODO()) {
-		var elem bson.M
-		if err := cursor.Decode(&elem); err != nil {
-			return tx, err
-		}
-	}
-	return tx, nil
+	return txs, nil
 }

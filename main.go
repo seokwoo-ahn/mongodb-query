@@ -28,6 +28,12 @@ func main() {
 		fmt.Println(tx)
 	}
 
+	if txs, err := query.GetTxsByBlockNumberGT(usersCollection, 7923820); err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(txs)
+	}
+
 	err = client.Disconnect(context.TODO())
 	if err != nil {
 		log.Fatal(err)
