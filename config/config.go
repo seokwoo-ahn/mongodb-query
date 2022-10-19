@@ -7,11 +7,13 @@ import (
 )
 
 type DataBase struct {
-	DataSource string
-	UserName   string
-	PassWord   string
-	DB         string
-	Collection string
+	DataSource      string
+	UserName        string
+	PassWord        string
+	DB              string
+	TxCollection    string
+	BlockCollection string
+	EventCollection string
 }
 
 type Config struct {
