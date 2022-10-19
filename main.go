@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -31,8 +30,7 @@ func main() {
 		fmt.Println(txs)
 	}
 
-	err = database.Client.Disconnect(context.TODO())
-	if err != nil {
+	if err = database.Disconnect(); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("몽고DB 연결을 종료했습니다!")
