@@ -17,7 +17,7 @@ type Database struct {
 }
 
 func NewDatabase(config *config.Config) (*Database, error) {
-	d := &Database{
+	db := &Database{
 		Config: config,
 	}
 
@@ -25,23 +25,23 @@ func NewDatabase(config *config.Config) (*Database, error) {
 	if err != nil {
 		return nil, err
 	}
-	d.Client = client
+	db.Client = client
 	fmt.Println("몽고 DB에 연결했습니다!")
 
 	database := client.Database(config.DB)
-	d.TxCollection = database.Collection(config.TxCollection)
+	db.TxCollection = database.Collection(config.TxCollection)
 	fmt.Println("트랜잭션 컬렉션에 연결했습니다!")
-	d.BlockCollection = database.Collection(config.BlockCollection)
+	db.BlockCollection = database.Collection(config.BlockCollection)
 	fmt.Println("블록 컬렉션에 연결했습니다!")
-	d.EventCollection = database.Collection(config.BlockCollection)
+	db.EventCollection = database.Collection(config.BlockCollection)
 	fmt.Println("이벤트 컬렉션에 연결했습니다!")
 
-	return d, nil
+	return db, nil
 }
 
-func (d *Database) Disconnect() error {
-	if d.Client != nil {
-		return d.Client.Disconnect(context.TODO())
+func (db *Database) Disconnect() error {
+	if db.Client != nil {
+		return db.Client.Disconnect(context.TODO())
 	}
 	return nil
 }
