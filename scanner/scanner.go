@@ -1,7 +1,10 @@
 package scanner
 
 import (
+	"bufio"
+	"fmt"
 	"mongodb_query/db"
+	"os"
 )
 
 type Scanner struct {
@@ -19,8 +22,19 @@ func NewScanner(db *db.Database) (*Scanner, error) {
 }
 
 func (s *Scanner) loop() {
+	consoleScanner := bufio.NewScanner(os.Stdin)
+	cnt := 0
 	for {
-		// fmt.Println("시작합니다")
+		fmt.Println("시작합니다")
+		if !consoleScanner.Scan() {
+			fmt.Println("에러발생")
+			break
+		}
+		cnt++
+		fmt.Println("hello")
+		if cnt == 2 {
+			break
+		}
 		// select {
 		// case <-s.Quit:
 		// 	return
@@ -36,8 +50,10 @@ func (s *Scanner) loop() {
 		// 			fmt.Println(tx)
 		// 		}
 		// 	case "Exit":
-		// 		return
+		// 		fmt.Println("hello world")
+		// 		break test
 		// 	}
 		// }
 	}
+	// prompt.Input("아무키나 입력하시져", prompts.SelectCollection)
 }

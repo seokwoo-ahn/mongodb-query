@@ -28,7 +28,7 @@ func New() (*App, error) {
 
 	go func() {
 		sigc := make(chan os.Signal, 1)
-		signal.Notify(sigc, syscall.SIGINT, syscall.SIGTERM)
+		signal.Notify(sigc, syscall.SIGINT)
 		defer signal.Stop(sigc)
 		defer close(sigc)
 		<-sigc
