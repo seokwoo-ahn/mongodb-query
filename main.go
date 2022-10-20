@@ -6,7 +6,7 @@ import (
 	"log"
 	"mongodb_query/config"
 	"mongodb_query/db"
-	"mongodb_query/query"
+	"mongodb_query/scanner"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,30 +17,13 @@ var configFlag = flag.String("config", "./config.toml", "configuration toml file
 type App struct {
 	stop     chan interface{}
 	database *db.Database
+	scanner  *scanner.Scanner
 }
 
 func New() (*App, error) {
+	var err error
 	app := &App{
 		stop: make(chan interface{}),
-	}
-
-	config := config.NewConfig(*configFlag)
-	database, err := db.NewDatabase(config)
-	if err != nil {
-		return nil, err
-	}
-	app.database = database
-
-	if tx, err := query.FindTxByHash(database.TxCollection, "0x075164408b59135a8efd2dc840147d397007552b92e14a2ca79e60d8b0d17f98"); err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(tx)
-	}
-
-	if txs, err := query.GetTxsByBlockNumberGT(database.TxCollection, 7923820); err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(txs)
 	}
 
 	go func() {
@@ -53,17 +36,27 @@ func New() (*App, error) {
 		go app.Terminate()
 	}()
 
+	config := config.NewConfig(*configFlag)
+	if app.database, err = db.NewDatabase(config); err != nil {
+		return nil, err
+	}
+	if app.scanner, err = scanner.NewScanner(app.database); err != nil {
+		return nil, err
+	}
+
 	return app, nil
 }
 
 func (p *App) Wait() {
 	<-p.stop
+	fmt.Println("앱을 종료합니다")
 }
 
 func (p *App) Terminate() {
 	defer close(p.stop)
+	close(p.scanner.Quit)
 
-	if err := p.database.Disconnect(); err != nil {
+	if err := db.Disconnect(p.database); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("몽고DB 연결을 종료했습니다!")

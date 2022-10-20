@@ -1,7 +1,6 @@
 package db
 
 import (
-	"context"
 	"fmt"
 	"mongodb_query/config"
 
@@ -37,11 +36,4 @@ func NewDatabase(config *config.Config) (*Database, error) {
 	fmt.Println("이벤트 컬렉션에 연결했습니다!")
 
 	return db, nil
-}
-
-func (db *Database) Disconnect() error {
-	if db.Client != nil {
-		return db.Client.Disconnect(context.TODO())
-	}
-	return nil
 }

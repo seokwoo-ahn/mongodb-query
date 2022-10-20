@@ -9,6 +9,15 @@ require (
 )
 
 require (
+	github.com/mattn/go-colorable v0.1.8 // indirect
+	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/mattn/go-tty v0.0.3 // indirect
+	github.com/pkg/term v1.2.0-beta.2 // indirect
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
+)
+
+require (
+	github.com/c-bata/go-prompt v0.2.6
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect

@@ -50,3 +50,10 @@ func ConnectMongoDB(datasource, username, pw string) (*mongo.Client, error) {
 		return nil, err
 	}
 }
+
+func Disconnect(db *Database) error {
+	if db.Client != nil {
+		return db.Client.Disconnect(context.TODO())
+	}
+	return nil
+}
