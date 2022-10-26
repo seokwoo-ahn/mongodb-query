@@ -26,16 +26,6 @@ func New() (*App, error) {
 		stop: make(chan interface{}),
 	}
 
-	go func() {
-		sigc := make(chan os.Signal, 1)
-		signal.Notify(sigc, syscall.SIGINT)
-		defer signal.Stop(sigc)
-		defer close(sigc)
-		<-sigc
-
-		go app.Terminate()
-	}()
-
 	config := config.NewConfig(*configFlag)
 	if app.database, err = db.NewDatabase(config); err != nil {
 		return nil, err
@@ -43,6 +33,20 @@ func New() (*App, error) {
 	if app.scanner, err = scanner.NewScanner(app.database); err != nil {
 		return nil, err
 	}
+
+	go func() {
+		<-app.scanner.Stop
+		go app.Terminate()
+	}()
+
+	go func() {
+		sigc := make(chan os.Signal, 1)
+		signal.Notify(sigc, syscall.SIGINT)
+		defer close(app.scanner.Stop)
+		defer signal.Stop(sigc)
+		defer close(sigc)
+		<-sigc
+	}()
 
 	return app, nil
 }
@@ -54,7 +58,6 @@ func (p *App) Wait() {
 
 func (p *App) Terminate() {
 	defer close(p.stop)
-	close(p.scanner.Quit)
 
 	if err := db.Disconnect(p.database); err != nil {
 		log.Fatal(err)

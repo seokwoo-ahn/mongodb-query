@@ -1,59 +1,60 @@
 package scanner
 
 import (
-	"bufio"
 	"fmt"
 	"mongodb_query/db"
-	"os"
+	"mongodb_query/libs/prompts"
+	"mongodb_query/query"
+
+	prompt "github.com/c-bata/go-prompt"
 )
 
 type Scanner struct {
-	DB   *db.Database
-	Quit chan struct{}
+	DB               *db.Database
+	CollectionPrompt *prompt.Prompt
+	QueryPrompt      *prompt.Prompt
+	Stop             chan interface{}
 }
+
+func promptExecutor(in string) {}
 
 func NewScanner(db *db.Database) (*Scanner, error) {
 	scanner := &Scanner{
 		DB:   db,
-		Quit: make(chan struct{}),
+		Stop: make(chan interface{}),
 	}
-	go scanner.loop()
+	scanner.CollectionPrompt = prompt.New(promptExecutor, prompts.SelectCollection)
+	scanner.QueryPrompt = prompt.New(promptExecutor, prompts.SelectTxQuery)
+
+	go scanner.ScanLoop()
 	return scanner, nil
 }
 
-func (s *Scanner) loop() {
-	consoleScanner := bufio.NewScanner(os.Stdin)
-	cnt := 0
-	for {
-		fmt.Println("시작합니다")
-		if !consoleScanner.Scan() {
-			fmt.Println("에러발생")
-			break
+func (s *Scanner) ScanPrompt() {
+	fmt.Println("종료하려면 Exit을 입력하세요")
+	collectionType := s.CollectionPrompt.Input()
+	switch collectionType {
+	case "Txs":
+		txCollection := s.DB.TxCollection
+		txQuery := s.QueryPrompt.Input()
+		switch txQuery {
+		case "ByHash":
+			tx, _ := query.FindTxByHash(txCollection, "0x075164408b59135a8efd2dc840147d397007552b92e14a2ca79e60d8b0d17f98")
+			fmt.Println(tx)
 		}
-		cnt++
-		fmt.Println("hello")
-		if cnt == 2 {
-			break
-		}
-		// select {
-		// case <-s.Quit:
-		// 	return
-		// default:
-		// 	collectionType := prompt.Input(">> ", prompts.SelectCollection)
-		// 	switch collectionType {
-		// 	case "Txs":
-		// 		txCollection := s.DB.TxCollection
-		// 		txQuery := prompt.Input(">> ", prompts.SelectTxQuery)
-		// 		switch txQuery {
-		// 		case "ByHash":
-		// 			tx, _ := query.FindTxByHash(txCollection, "0x075164408b59135a8efd2dc840147d397007552b92e14a2ca79e60d8b0d17f98")
-		// 			fmt.Println(tx)
-		// 		}
-		// 	case "Exit":
-		// 		fmt.Println("hello world")
-		// 		break test
-		// 	}
-		// }
+	case "Exit":
+		defer close(s.Stop)
 	}
-	// prompt.Input("아무키나 입력하시져", prompts.SelectCollection)
+}
+
+func (s *Scanner) ScanLoop() {
+	for {
+		select {
+		case <-s.Stop:
+			return
+		default:
+			fmt.Println("DB 스캔을 시작합니다")
+			s.ScanPrompt()
+		}
+	}
 }
