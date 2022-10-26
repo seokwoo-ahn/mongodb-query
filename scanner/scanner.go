@@ -30,6 +30,14 @@ func (s *Scanner) ScanTx() {
 	collection := s.DB.TxCollection
 	query := s.Prompt.QueryPrompt.Input()
 	switch query {
+	case "Index":
+		if indexes, err := queries.GetIndexes(collection); err != nil {
+			fmt.Println(err)
+		} else {
+			for _, v := range indexes {
+				fmt.Println(v)
+			}
+		}
 	case "ByHash":
 		input := s.Prompt.TxHashPrompt.Input()
 		if tx, err := queries.FindTxByHash(collection, input); err != nil {
@@ -39,7 +47,11 @@ func (s *Scanner) ScanTx() {
 		}
 	case "ByBNGT":
 		input := s.Prompt.BlockNumPrompt.Input()
-		blocknum, _ := strconv.Atoi(input)
+		blocknum, err := strconv.Atoi(input)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 		if txs, err := queries.GetTxsByBlockNumberGT(collection, blocknum); err != nil {
 			fmt.Println(err)
 		} else {
