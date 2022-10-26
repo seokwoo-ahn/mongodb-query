@@ -7,9 +7,6 @@ import (
 	"mongodb_query/config"
 	"mongodb_query/db"
 	"mongodb_query/scanner"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 var configFlag = flag.String("config", "./config.toml", "configuration toml file path")
@@ -39,14 +36,15 @@ func New() (*App, error) {
 		go app.Terminate()
 	}()
 
-	go func() {
-		sigc := make(chan os.Signal, 1)
-		signal.Notify(sigc, syscall.SIGINT)
-		defer close(app.scanner.Stop)
-		defer signal.Stop(sigc)
-		defer close(sigc)
-		<-sigc
-	}()
+	// control+c 로 종료하는 방법
+	// go func() {
+	// 	sigc := make(chan os.Signal, 1)
+	// 	signal.Notify(sigc, syscall.SIGINT)
+	// 	defer close(app.scanner.Stop)
+	// 	defer signal.Stop(sigc)
+	// 	defer close(sigc)
+	// 	<-sigc
+	// }()
 
 	return app, nil
 }

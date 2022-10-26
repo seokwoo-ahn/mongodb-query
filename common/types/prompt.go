@@ -4,7 +4,8 @@ import "github.com/c-bata/go-prompt"
 
 type Prompt struct {
 	CollectionPrompt *prompt.Prompt
-	QueryPrompt      *prompt.Prompt
-	TxHashPrompt     *prompt.Prompt
+	TxQueryPrompt    *prompt.Prompt
+	BlockQueryPrompt *prompt.Prompt
+	HashPrompt       *prompt.Prompt
 	BlockNumPrompt   *prompt.Prompt
 }
