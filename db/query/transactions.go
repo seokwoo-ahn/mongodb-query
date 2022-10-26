@@ -2,7 +2,7 @@ package query
 
 import (
 	"context"
-	"mongodb_query/types"
+	"mongodb_query/db/types"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,11 +11,6 @@ import (
 
 func FindTxByHash(collection *mongo.Collection, txHash string) (types.Tx, error) {
 	var tx types.Tx
-
-	// projection
-	// opts := []*options.FindOneOptions{
-	// 	options.FindOne().SetProjection(bson.M{"blocknumber": 1}),
-	// }
 
 	if err := collection.FindOne(context.TODO(), bson.D{{Key: "txhash", Value: txHash}}, nil).Decode(&tx); err != nil {
 		return tx, err
