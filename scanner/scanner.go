@@ -5,7 +5,7 @@ import (
 	"mongodb_query/common/prompts"
 	"mongodb_query/common/types"
 	"mongodb_query/db"
-	"mongodb_query/db/query"
+	"mongodb_query/db/queries"
 )
 
 type Scanner struct {
@@ -25,19 +25,28 @@ func NewScanner(db *db.Database) (*Scanner, error) {
 	return scanner, nil
 }
 
-func (s *Scanner) ScanPrompt() {
+func (s *Scanner) ScanTx() {
+	collection := s.DB.TxCollection
+	query := s.Prompt.QueryPrompt.Input()
+	switch query {
+	case "ByHash":
+		input := s.Prompt.TxHashPrompt.Input()
+		if tx, err := queries.FindTxByHash(collection, input); err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(tx)
+		}
+	case "Exit":
+		defer close(s.Stop)
+	}
+}
+
+func (s *Scanner) Scan() {
 	fmt.Println("종료하려면 Exit을 입력하세요")
 	collectionType := s.Prompt.CollectionPrompt.Input()
 	switch collectionType {
 	case "Txs":
-		txCollection := s.DB.TxCollection
-		txQuery := s.Prompt.QueryPrompt.Input()
-		switch txQuery {
-		case "ByHash":
-			tx, _ := query.FindTxByHash(txCollection, "0x075164408b59135a8efd2dc840147d397007552b92e14a2ca79e60d8b0d17f98")
-			fmt.Println(tx)
-			fmt.Println()
-		}
+		s.ScanTx()
 	case "Exit":
 		defer close(s.Stop)
 	}
@@ -50,7 +59,7 @@ func (s *Scanner) ScanLoop() {
 			return
 		default:
 			fmt.Println("DB 스캔을 시작합니다")
-			s.ScanPrompt()
+			s.Scan()
 		}
 	}
 }
