@@ -6,6 +6,7 @@ import (
 	"mongodb_query/common/types"
 	"mongodb_query/db"
 	"mongodb_query/db/queries"
+	"strconv"
 )
 
 type Scanner struct {
@@ -35,6 +36,16 @@ func (s *Scanner) ScanTx() {
 			fmt.Println(err)
 		} else {
 			fmt.Println(tx)
+		}
+	case "ByBNGT":
+		input := s.Prompt.BlockNumPrompt.Input()
+		blocknum, _ := strconv.Atoi(input)
+		if txs, err := queries.GetTxsByBlockNumberGT(collection, blocknum); err != nil {
+			fmt.Println(err)
+		} else {
+			for _, v := range txs {
+				fmt.Println(v)
+			}
 		}
 	case "Exit":
 		defer close(s.Stop)

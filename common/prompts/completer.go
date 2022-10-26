@@ -29,3 +29,10 @@ func ReceiveTxHash(d prompt.Document) []prompt.Suggest {
 	}
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 }
+
+func ReceiveBlockNum(d prompt.Document) []prompt.Suggest {
+	s := []prompt.Suggest{
+		{Text: "Exit", Description: "terminate scanner"},
+	}
+	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+}

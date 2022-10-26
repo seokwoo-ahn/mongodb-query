@@ -13,6 +13,7 @@ func NewPrompt() *types.Prompt {
 		CollectionPrompt: NewCollectionPrompt(),
 		QueryPrompt:      NewQueryPrompt(),
 		TxHashPrompt:     NewTxHashPrompt(),
+		BlockNumPrompt:   NewBlockNumPrompt(),
 	}
 	return prompt
 }
@@ -27,4 +28,8 @@ func NewQueryPrompt() *prompt.Prompt {
 
 func NewTxHashPrompt() *prompt.Prompt {
 	return prompt.New(promptExecutor, ReceiveTxHash, prompt.OptionPrefix("Tx 해시 값을 입력하세요 >>> "))
+}
+
+func NewBlockNumPrompt() *prompt.Prompt {
+	return prompt.New(promptExecutor, ReceiveBlockNum, prompt.OptionPrefix("Block number를 입력하세요 >>> "))
 }
