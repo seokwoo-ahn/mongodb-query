@@ -32,7 +32,7 @@ func NewDatabase(config *config.Config) (*Database, error) {
 	fmt.Println("트랜잭션 컬렉션에 연결했습니다!")
 	db.BlockCollection = database.Collection(config.BlockCollection)
 	fmt.Println("블록 컬렉션에 연결했습니다!")
-	db.EventCollection = database.Collection(config.BlockCollection)
+	db.EventCollection = database.Collection(config.EventCollection)
 	fmt.Println("이벤트 컬렉션에 연결했습니다!")
 
 	return db, nil

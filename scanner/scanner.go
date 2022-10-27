@@ -102,6 +102,73 @@ func (s *Scanner) ScanBlock() {
 	}
 }
 
+func (s *Scanner) ScanEvent() {
+	collection := s.DB.EventCollection
+	query := s.Prompt.EventQueryPrompt.Input()
+	switch query {
+	case "Index":
+		if indexes, err := queries.GetIndexes(collection); err != nil {
+			fmt.Println(err)
+		} else {
+			for _, v := range indexes {
+				fmt.Println(v)
+			}
+		}
+	case "ByEventName":
+		name := s.Prompt.NamePrompt.Input()
+		if events, err := queries.FindEventsByEventName(collection, name); err != nil {
+			fmt.Println(err)
+		} else {
+			for _, v := range events {
+				fmt.Println(v)
+			}
+		}
+	case "ByContractName":
+		name := s.Prompt.NamePrompt.Input()
+		if events, err := queries.FindEventsByContractName(collection, name); err != nil {
+			fmt.Println(err)
+		} else {
+			for _, v := range events {
+				fmt.Println(v)
+			}
+		}
+	case "ByContractAddress":
+		address := s.Prompt.AddressPrompt.Input()
+		if events, err := queries.FindEventsByContractAddress(collection, address); err != nil {
+			fmt.Println(err)
+		} else {
+			for _, v := range events {
+				fmt.Println(v)
+			}
+		}
+	case "ByBlockNum":
+		input := s.Prompt.BlockNumPrompt.Input()
+		blockNum, err := strconv.Atoi(input)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		if events, err := queries.FindEventsByBlockNum(collection, blockNum); err != nil {
+			fmt.Println(err)
+		} else {
+			for _, v := range events {
+				fmt.Println(v)
+			}
+		}
+	case "ByTxHash":
+		txHash := s.Prompt.HashPrompt.Input()
+		if events, err := queries.FindEventsByTxHash(collection, txHash); err != nil {
+			fmt.Println(err)
+		} else {
+			for _, v := range events {
+				fmt.Println(v)
+			}
+		}
+	case "Exit":
+		defer close(s.Stop)
+	}
+}
+
 func (s *Scanner) Scan() {
 	fmt.Println("종료하려면 Exit을 입력하세요")
 	collectionType := s.Prompt.CollectionPrompt.Input()
@@ -110,6 +177,8 @@ func (s *Scanner) Scan() {
 		s.ScanTx()
 	case "Blocks":
 		s.ScanBlock()
+	case "Events":
+		s.ScanEvent()
 	case "Exit":
 		defer close(s.Stop)
 	}
